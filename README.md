@@ -1,5 +1,11 @@
 # MUSCLE_STYLE_PROJECT (eCOMMERCE APPLICATION) BUILD FROM SCRATCH.
 # 
+### Screenshots
+![](screenShots/loginPage.png)
+![](screenShots/SignUpPage.png)
+![](screenShots/Productspage.png)
+![](screenShots/cartPage.png)
+![](screenShots/CheckoutAddress.png)
 # FEATURES 
 
 OTP Login and Signup,Users can view products, add to cart, delete from cart and checkout with COD or online payment,Integrated Razorpay and Paypal for online payment functionalities, Admins can handle user management, product management and offer management.
