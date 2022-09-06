@@ -3,7 +3,7 @@
 ### Screenshots
 ![](screenShots/loginPage.png)
 ![](screenShots/SignUpPage.png)
-![](creenShots/Productspage.png)
+![](screenShots/Productspage.png)
 ![](screenShots/cartPage.png)
 ![](screenShots/CheckoutAddress.png)
 # FEATURES 
