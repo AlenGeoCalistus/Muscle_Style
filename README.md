@@ -1,6 +1,7 @@
 # MUSCLE_STYLE_PROJECT (eCOMMERCE APPLICATION) BUILD FROM SCRATCH.
 # 
 ### Screenshots
+![](screenShots/HomePage.png)
 ![](screenShots/loginPage.png)
 ![](screenShots/SignUpPage.png)
 ![](screenShots/Productspage.png)
