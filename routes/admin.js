@@ -12,7 +12,7 @@ router.get("/", function (req, res, next) {
    if (req.session.admin) {
       let admin = req.session.admin;
       adminLogin = true;
-      // console.log("ffffffffffffffffffffffffffff", admin);
+      //console.log("ffffffffffffffffffffffffffff", admin);
       res.render("admin/admin-dashboard", { admin: true, admin, adminLogin });
    } else {
       res.render("admin/admin-dashboard", { admin: true, notAdmin });
@@ -20,7 +20,7 @@ router.get("/", function (req, res, next) {
 });
 router.get("/admin-login", (req, res) => {
    if (req.session.admin) {
-      console.log("aaaaaaaaaaaaaaaaaaaaaaa", req.session.admin);
+      //console.log("aaaaaaaaaaaaaaaaaaaaaaa", req.session.admin);
       res.redirect("/admin");
    } else {
       adminLogin = false;
@@ -37,6 +37,8 @@ router.post("/admin-login", async (req, res) => {
          req.session.admin = response.admin;
          req.session.loggedIn = response.adminStatus;
          var logged = req.session.loggedIn;
+         //console.log("aaaaaaaaaaaaaaaaaaaa", logged);
+         //console.log("aaaaaaaaaaaaaaaaaaaa", req.session.admin);
          let admin = req.session.admin;
          res.redirect("/admin");
       } else {
@@ -69,7 +71,7 @@ router.post("/admin-signup", (req, res) => {
    // } else {
    if (name == admin && password == adminpass && phone == adminph && email == adminemail) {
       userHelpers.adminDoSignup(req.body).then((response) => {
-         console.log('admin signupcred',response);
+         //console.log('admin signupcred',response);
          req.session.admin = response;
          req.session.admin = req.body;
          req.session.admin.loggedIn = true;
@@ -119,7 +121,7 @@ router.get("/admin-editproduct/:id", async (req, res) => {
    let admin = req.session.admin;
    if (req.session.admin) {
       let product = await productHelpers.getProductDetails(req.params.id);
-      console.log(product);
+      //console.log(product);
       res.render("admin/admin-editproduct", { product, admin });
    } else {
       res.redirect("/admin/admin-login");
@@ -127,7 +129,7 @@ router.get("/admin-editproduct/:id", async (req, res) => {
 });
 
 router.post("/admin-editproduct/:id", (req, res) => {
-   console.log(req.params.id);
+   //console.log(req.params.id);
    let id = req.params.id;
    productHelpers.updateProduct(req.params.id, req.body).then(() => {
       res.redirect("/admin");
@@ -140,7 +142,7 @@ router.post("/admin-editproduct/:id", (req, res) => {
 
 router.get("/admin-deleteproduct/:id", (req, res) => {
    let prodId = req.params.id;
-   console.log(prodId);
+   //console.log(prodId);
    productHelpers.deleteProduct(prodId).then((response) => {
       res.redirect("/admin");
    });
@@ -156,8 +158,8 @@ router.get("/admin-addproduct", (req, res) => {
 });
 
 router.post("/admin-addproduct", (req, res) => {
-   console.log(req.body);
-   console.log(req.files.image);
+   //console.log(req.body);
+   //console.log(req.files.image);
    let admin = req.session.admin;
    productHelpers.addProduct(req.body, (id) => {
       let Image = req.files.image;
@@ -165,7 +167,7 @@ router.post("/admin-addproduct", (req, res) => {
          if (!err) {
             res.render("admin/admin-addproduct", { admin: true, admin });
          } else {
-            console.log(err);
+            //console.log(err);
          }
       });
    });
@@ -175,7 +177,7 @@ router.get("/admin-viewusers", (req, res) => {
    let admin = req.session.admin;
    if (req.session.admin) {
       productHelpers.getAllUsers().then((Users) => {
-         // console.log("ffdfsdfdf", Users);
+         // //console.log("ffdfsdfdf", Users);
          res.render("admin/admin-viewusers", { admin: true, Users, admin });
       });
    } else {
@@ -186,7 +188,7 @@ router.get("/admin-viewusers", (req, res) => {
 router.get("/admin-edituser/:id", async (req, res) => {
    let admin = req.session.admin;
    if (req.session.admin) {
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", req.params.id);
+      //console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", req.params.id);
       let user = await productHelpers.getUserDetails(req.params.id);
       res.render("admin/admin-edituser", { admin, login: true, user });
    } else {
@@ -202,7 +204,7 @@ router.post("/admin-edituser/:id", (req, res) => {
 
 router.get("/admin-deleteuser/:id", (req, res) => {
    let userId = req.params.id;
-   console.log(userId);
+   //console.log(userId);
    productHelpers.deleteUser(userId).then((response) => {
       res.redirect("/admin/admin-viewusers");
    });
@@ -218,7 +220,7 @@ router.get("/admin-adduser", (req, res) => {
 });
 
 router.post("/admin-adduser", (req, res) => {
-   console.log(req.body);
+   //console.log(req.body);
 
    productHelpers.addUser(req.body, (id) => {
       res.redirect("/admin/admin-adduser");
@@ -228,9 +230,9 @@ router.post("/admin-adduser", (req, res) => {
 router.get("/admin-blockuser", (req, res) => {
    let admin = req.session.admin;
    if (req.session.admin) {
-      console.log("aaaaaaaaaaaaaaaa", req.session.admin);
+      //console.log("aaaaaaaaaaaaaaaa", req.session.admin);
       productHelpers.getAllUsers().then((Users) => {
-         // console.log("ffdfsdfdf", Users);
+         // //console.log("ffdfsdfdf", Users);
          res.render("admin/admin-blockuser", { admin: true, Users, admin });
       });
    } else {
@@ -249,7 +251,7 @@ router.get("/admin-view-blockedusers", (req, res) => {
    let admin = req.session.admin;
    if (req.session.admin) {
       productHelpers.getBlockedUsers().then((blockedUsers) => {
-         // console.log("ffdfsdfdf", blockedUsers);
+         // //console.log("ffdfsdfdf", blockedUsers);
          res.render("admin/admin-view-blockedusers", {
             admin,
             login: true,
@@ -270,7 +272,7 @@ router.get("/admin-view-userorders", (req, res) => {
    let admin = req.session.admin;
    if (req.session.admin) {
       productHelpers.getAllOrders().then((orders) => {
-         // console.log("ffdfsdfdf", orders);
+         // //console.log("ffdfsdfdf", orders);
          res.render("admin/admin-view-userorders", {
             admin: true,
             orders,
@@ -285,7 +287,7 @@ router.get("/admin-view-userorders", (req, res) => {
 router.get("/modifyOrders/:id", async (req, res) => {
    if (req.session.admin) {
       let modifyOrders = await userHelpers.modifyOrders(req.params.id);
-      console.log("modifyOrderssssssadminnnnnnn", modifyOrders);
+      //console.log("modifyOrderssssssadminnnnnnn", modifyOrders);
       res.render("admin/modifyOrders", {
          admin: req.session.admin,
          modifyOrders,
@@ -331,39 +333,39 @@ const YEAR_SECONDS = 365.25 * 24 * 60 * 60 * 1000;
 let nowDate = new Date();
 const day_seconds = 1 * 24 * 60 * 60 * 1000;
 let today = new Date(nowDate - day_seconds);
-// console.log('daysecondsssssssssssssssssssssss',today);
+// //console.log('daysecondsssssssssssssssssssssss',today);
 
 router.get("/dashboard", async (req, res) => {
    //* user, admins and products count
 
    let usersCount = await userHelpers.getAllUsers();
-   console.log("allUsers", usersCount);
+   //console.log("allUsers", usersCount);
 
    let adminCount = await userHelpers.getAllAdmins();
-   console.log("allAdmins", adminCount);
+   //console.log("allAdmins", adminCount);
 
    let productsCount = await userHelpers.getAllProducts();
-   console.log("allProducts", productsCount);
+   //console.log("allProducts", productsCount);
 
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
 
    //* date variables for filtering
 
@@ -371,8 +373,8 @@ router.get("/dashboard", async (req, res) => {
    let lastWeek = new Date(nowDate - WEEK_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
    let today = new Date(nowDate - day_seconds);
-   console.log("lastweekkkkkkkkkkkkkkkkkk", lastWeek);
-   console.log("todaynewwwwwwwwwwwww", today);
+   //console.log("lastweekkkkkkkkkkkkkkkkkk", lastWeek);
+   //console.log("todaynewwwwwwwwwwwww", today);
    // LAST WEEK SALE COUNT
    let response = await userHelpers.getWeekReport(lastWeek);
    report = response;
@@ -389,7 +391,7 @@ router.get("/dashboard", async (req, res) => {
    if (todayTotalAmt == 0) {
       todayTotalAmt = 0;
    }
-   console.log("todaysaleeeeeeeee", todayTotalAmt);
+   //console.log("todaysaleeeeeeeee", todayTotalAmt);
    res.render("admin/dashboard", {
       admin: req.session.admin,
       report,
@@ -415,44 +417,44 @@ router.get("/month-report", async (req, res) => {
    //* user, admins and products count
 
    let usersCount = await userHelpers.getAllUsers();
-   console.log("allUsers", usersCount);
+   //console.log("allUsers", usersCount);
 
    let adminCount = await userHelpers.getAllAdmins();
-   console.log("allAdmins", adminCount);
+   //console.log("allAdmins", adminCount);
 
    let productsCount = await userHelpers.getAllProducts();
-   console.log("allProducts", productsCount);
+   //console.log("allProducts", productsCount);
 
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
    let nowDate = new Date();
    let lastMonth = new Date(nowDate - MONTH_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
-   console.log("lastmonthhhhhhhhhhh", lastMonth);
+   //console.log("lastmonthhhhhhhhhhh", lastMonth);
    let response = await userHelpers.getMonthReport(lastMonth);
-   console.log("loggggggggggggggggggg", response);
+   //console.log("loggggggggggggggggggg", response);
    let lastMthCount = response.length;
-   console.log("lastmonthcountttttt", lastMthCount);
+   //console.log("lastmonthcountttttt", lastMthCount);
    // monthReport = true
    let lastMonthSale = await userHelpers.getMonthTotal(lastMonth);
-   console.log("lastmonthtotalSale", lastMonthSale);
+   //console.log("lastmonthtotalSale", lastMonthSale);
    let todaySale = await userHelpers.getTodaySaleCount(Today);
    let todaySaleCount = todaySale.length;
    let todayTotalAmt = await userHelpers.getTotalSale(Today);
@@ -480,33 +482,33 @@ router.get("/year-report", async (req, res) => {
    //* user, admins and products count
 
    let usersCount = await userHelpers.getAllUsers();
-   console.log("allUsers", usersCount);
+   //console.log("allUsers", usersCount);
 
    let adminCount = await userHelpers.getAllAdmins();
-   console.log("allAdmins", adminCount);
+   //console.log("allAdmins", adminCount);
 
    let productsCount = await userHelpers.getAllProducts();
-   console.log("allProducts", productsCount);
+   //console.log("allProducts", productsCount);
 
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
    let nowDate = new Date();
    let lastYear = new Date(nowDate - YEAR_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
@@ -514,7 +516,7 @@ router.get("/year-report", async (req, res) => {
    let lastYearCount = response.length;
    yearReport = true;
    let lastYearSale = await userHelpers.getYearTotal(lastYear);
-   console.log("lastyearrrrrrrrr", lastYearSale);
+   //console.log("lastyearrrrrrrrr", lastYearSale);
    let todaySale = await userHelpers.getTodaySaleCount(Today);
    let todaySaleCount = todaySale.length;
    let todayTotalAmt = await userHelpers.getTotalSale(Today);
@@ -547,7 +549,7 @@ router.get("/add_coupons", (req, res) => {
 });
 
 router.post("/add_coupons", (req, res) => {
-   console.log("couponsssssssssssssssss", req.body);
+   //console.log("couponsssssssssssssssss", req.body);
    userHelpers.addCoupons(req.body).then(() => {
       res.redirect("/admin/add_coupons");
    });
@@ -555,7 +557,7 @@ router.post("/add_coupons", (req, res) => {
 
 router.get("/view_coupons", (req, res) => {
    productHelpers.viewCoupons().then((allCoupons) => {
-      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", allCoupons);
+      //console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", allCoupons);
       res.render("admin/view_coupons", {
          admin: req.session.admin,
          allCoupons,
@@ -565,7 +567,7 @@ router.get("/view_coupons", (req, res) => {
 
 router.get("/deletecoupon/:id", (req, res) => {
    let coupId = req.params.id;
-   console.log(coupId);
+   //console.log(coupId);
    productHelpers.deleteCoupon(coupId).then((response) => {
       res.redirect("/admin");
    });
@@ -574,29 +576,29 @@ router.get("/deletecoupon/:id", (req, res) => {
 router.get("/week-report", async (req, res) => {
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
 
    //* date variables for filtering
    let nowDate = new Date();
    let lastWeek = new Date(nowDate - WEEK_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
-   console.log("lastweekkkkkkkkkkkkkkkkkk", lastWeek);
+   //console.log("lastweekkkkkkkkkkkkkkkkkk", lastWeek);
    // LAST WEEK SALE COUNT
    let response = await userHelpers.getWeekReport(lastWeek);
    report = response;
@@ -613,7 +615,7 @@ router.get("/week-report", async (req, res) => {
    if (todayTotalAmt == 0) {
       todayTotalAmt = 0;
    }
-   console.log("todaysaleeeeeeeee", todayTotalAmt);
+   //console.log("todaysaleeeeeeeee", todayTotalAmt);
    res.render("admin/dashboard", {
       admin: req.session.admin,
       report,
@@ -635,29 +637,29 @@ router.get("/week-report", async (req, res) => {
 router.get("/weekly_report", async (req, res) => {
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
 
    //* date variables for filtering
    let nowDate = new Date();
    let lastWeek = new Date(nowDate - WEEK_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
-   console.log("lastweekkkkkkkkkkkkkkkkkk", lastWeek);
+   //console.log("lastweekkkkkkkkkkkkkkkkkk", lastWeek);
    // LAST WEEK SALE COUNT
    let response = await userHelpers.getWeekReport(lastWeek);
    report = response;
@@ -674,7 +676,7 @@ router.get("/weekly_report", async (req, res) => {
    if (todayTotalAmt == 0) {
       todayTotalAmt = 0;
    }
-   console.log("todaysaleeeeeeeee", todayTotalAmt);
+   //console.log("todaysaleeeeeeeee", todayTotalAmt);
    res.render("admin/weekSalesReport", {
       admin: req.session.admin,
       report,
@@ -696,34 +698,34 @@ router.get("/weekly_report", async (req, res) => {
 router.get("/monthly_report", async (req, res) => {
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
    let nowDate = new Date();
    let lastMonth = new Date(nowDate - MONTH_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
-   console.log("lastmonthhhhhhhhhhh", lastMonth);
+   //console.log("lastmonthhhhhhhhhhh", lastMonth);
    let response = await userHelpers.getMonthReport(lastMonth);
-   console.log("loggggggggggggggggggg", response);
+   //console.log("loggggggggggggggggggg", response);
    let lastMthCount = response.length;
-   console.log("lastmonthcountttttt", lastMthCount);
+   //console.log("lastmonthcountttttt", lastMthCount);
    // monthReport = true
    let lastMonthSale = await userHelpers.getMonthTotal(lastMonth);
-   console.log("lastmonthtotalSale", lastMonthSale);
+   //console.log("lastmonthtotalSale", lastMonthSale);
    let todaySale = await userHelpers.getTodaySaleCount(Today);
    let todaySaleCount = todaySale.length;
    let todayTotalAmt = await userHelpers.getTotalSale(Today);
@@ -747,23 +749,23 @@ router.get("/monthly_report", async (req, res) => {
 router.get("/yearly_report", async (req, res) => {
    //* payment method count
    let razorpay = await userHelpers.getRazorpayCount();
-   console.log("razorpaylengthhhhhh", razorpay);
+   //console.log("razorpaylengthhhhhh", razorpay);
 
    let COD = await userHelpers.getCODcount();
-   console.log("coddddddddddddd", COD);
+   //console.log("coddddddddddddd", COD);
 
    let paypal = await userHelpers.getPaypalCount();
-   console.log("paypalllllllll", paypal);
+   //console.log("paypalllllllll", paypal);
 
    //* payment method totalAmount
    let razorpayAmt = await userHelpers.getRazorpayAmt();
-   console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
+   //console.log("totalrazorpayyyyyyyyyy", razorpayAmt);
 
    let CODamt = await userHelpers.getCODAmt();
-   console.log("totalCOdddddddddddd", CODamt);
+   //console.log("totalCOdddddddddddd", CODamt);
 
    let paypalAmt = await userHelpers.getPaypalAmt();
-   console.log("totalPaypallllll", paypalAmt);
+   //console.log("totalPaypallllll", paypalAmt);
    let nowDate = new Date();
    let lastYear = new Date(nowDate - YEAR_SECONDS);
    let Today = new Date(nowDate - DAY_SECONDS);
@@ -771,7 +773,7 @@ router.get("/yearly_report", async (req, res) => {
    let lastYearCount = response.length;
    yearReport = true;
    let lastYearSale = await userHelpers.getYearTotal(lastYear);
-   console.log("lastyearrrrrrrrr", lastYearSale);
+   //console.log("lastyearrrrrrrrr", lastYearSale);
    let todaySale = await userHelpers.getTodaySaleCount(Today);
    let todaySaleCount = todaySale.length;
    let todayTotalAmt = await userHelpers.getTotalSale(Today);

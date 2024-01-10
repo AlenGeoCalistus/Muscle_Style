@@ -10,7 +10,7 @@ const state = {
 
 module.exports.connect = function (done) {
    // const url = 'mongodb://localhost:27017/'
-   const URI = `mongodb+srv://${USERNAME}:${PASSWORD}@${CLUSTER}.mongodb.net/?retryWrites=true&w=majority`;
+   const URI = process.env.MONGO_URI;
    const dbname = "fitness";
 
    mongoClient.connect(URI, (err, data) => {

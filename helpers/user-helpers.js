@@ -306,8 +306,8 @@ module.exports = {
    // getTotalDiscount: (userId)=>{
    //     return new Promise(async(resolve,reject)=>{
    //         let discount = await db.get().collection(collection.CART_COLLECTIONS).findOne({user:objectId(userId)})
-   //         console.log('checkingggggggggggggggggggggggggggggggg',discount.products.quantity);
-   //         console.log('checkingggggggggggggggggggggggggggggggg',discount);
+   ////         console.log('checkingggggggggggggggggggggggggggggggg',discount.products.quantity);
+   ////         console.log('checkingggggggggggggggggggggggggggggggg',discount);
    //     })
    // },
 
@@ -623,9 +623,9 @@ module.exports = {
          };
          instance.orders.create(options, function (err, order) {
             if (err) {
-               //          console.log(err);
+               // //         console.log(err);
             } else {
-               //         console.log('new Order_', order);
+               ////         console.log('new Order_', order);
                resolve(order);
             }
          });
@@ -750,7 +750,7 @@ module.exports = {
    //     }
    //     return new Promise(async (resolve, reject) => {
    //         db.get().collection(collection.PRODUCT_COLLECTIONS).findOne({ product: objectId(prodId) })
-   //         console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhh',prodId);
+   ////         console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhh',prodId);
    //         resolve(prodId)
    //     })
    // },
@@ -777,13 +777,13 @@ module.exports = {
                   response.blocked = true;
                   resolve(response);
                } else {
-                  //                 console.log("Logged in successfully");
+                  //        //         console.log("Logged in successfully");
                   response.user = user;
                   response.status = true;
                   resolve(response);
                }
             } else {
-               //           console.log("Login failed");
+               //  //         console.log("Login failed");
                resolve({ status: false });
             }
             // })
@@ -847,7 +847,7 @@ module.exports = {
 
    // addNewAddress: (address, userId) => {
    //     return new Promise((resolve, reject) => {
-   //         console.log(address);
+   ////         console.log(address);
    //         let addressObj = {
    //             addresses: {
    //                 name: address.name,
@@ -959,7 +959,7 @@ module.exports = {
             .collection(collection.ORDER_COLLECTIONS)
             .findOne({ _id: objectId(orderId) })
             .then((response) => {
-               console.log("modifyOrdersresponseeeeeeeeeee", response);
+      //         console.log("modifyOrdersresponseeeeeeeeeee", response);
                resolve(response);
             });
       });
@@ -975,7 +975,7 @@ module.exports = {
                { $set: { status: statusId.status } }
             )
             .then((status) => {
-               console.log("sssssssssssssssssssss", status);
+      //         console.log("sssssssssssssssssssss", status);
                resolve();
             }),
       ]);
@@ -988,8 +988,8 @@ module.exports = {
             .collection(collection.ORDER_COLLECTIONS)
             .find({ paymentMethod: "ONLINE" })
             .toArray();
-         console.log("razorrrr", razorpay);
-         console.log("razorrrr", razorpay.length);
+//         console.log("razorrrr", razorpay);
+//         console.log("razorrrr", razorpay.length);
          resolve(razorpay.length);
       });
    },
@@ -1041,7 +1041,7 @@ module.exports = {
                },
             ])
             .toArray();
-         console.log("razorrrrrrrrrrrrrTotal", razorTotal[0].total);
+//         console.log("razorrrrrrrrrrrrrTotal", razorTotal[0].total);
          resolve(razorTotal[0].total);
       });
    },
@@ -1093,7 +1093,7 @@ module.exports = {
                },
             ])
             .toArray();
-         console.log("coddddddddddddddddTotal", CODtotal[0].total);
+//         console.log("coddddddddddddddddTotal", CODtotal[0].total);
          resolve(CODtotal[0].total);
       });
    },
@@ -1145,7 +1145,7 @@ module.exports = {
                },
             ])
             .toArray();
-         console.log("coddddddddddddddddTotal", paypalTotal[0].total);
+//         console.log("coddddddddddddddddTotal", paypalTotal[0].total);
          resolve(paypalTotal[0].total);
       });
    },
@@ -1232,7 +1232,7 @@ module.exports = {
                },
             ])
             .toArray();
-         console.log("total", total[0].total);
+//         console.log("total", total[0].total);
          resolve(total[0].total);
       });
    },
@@ -1366,7 +1366,7 @@ module.exports = {
                },
             ])
             .toArray();
-         console.log("total", total[0].total);
+//         console.log("total", total[0].total);
          resolve(total[0].total);
       });
    },
@@ -1433,7 +1433,7 @@ module.exports = {
                },
             ])
             .toArray();
-         console.log("total", total[0].total);
+//         console.log("total", total[0].total);
          resolve(total[0].total);
       });
    },
@@ -1459,7 +1459,7 @@ module.exports = {
             .get()
             .collection(collection.COUPONS_COLLECTIONS)
             .findOne();
-         console.log("helpersssssssssssssss", myCoupon.couponObj.discountVal);
+//         console.log("helpersssssssssssssss", myCoupon.couponObj.discountVal);
          resolve(myCoupon.couponObj.discountVal);
       });
    },
@@ -1481,14 +1481,14 @@ module.exports = {
             .collection(collection.COUPONS_COLLECTIONS)
             .findOne({ users: userId });
          //    console.log('couponstatusssstsussssssssssss',couponStatus.users);
-         console.log("couponStatusssssss", couponStatus);
+//         console.log("couponStatusssssss", couponStatus);
          if (couponStatus == null) {
             couponApplied = false;
-            console.log("couponStatusssssssNotfound", couponStatus);
+   //         console.log("couponStatusssssssNotfound", couponStatus);
             resolve(couponApplied);
          } else {
             resolve(couponApplied);
-            console.log("couponStatusssssssFound", couponStatus);
+   //         console.log("couponStatusssssssFound", couponStatus);
          }
       });
    },
@@ -1500,7 +1500,7 @@ module.exports = {
             .collection(collection.USER_COLLECTIONS)
             .find()
             .toArray();
-         console.log("alluserssssssssssssss", Users.length);
+//         console.log("alluserssssssssssssss", Users.length);
          resolve(Users.length);
       });
    },
@@ -1512,7 +1512,7 @@ module.exports = {
             .collection(collection.ADMIN_COLLECTIONS)
             .find()
             .toArray();
-         console.log("alladminsssssssssssss", Admin.length);
+//         console.log("alladminsssssssssssss", Admin.length);
          resolve(Admin.length);
       });
    },
@@ -1524,7 +1524,7 @@ module.exports = {
             .collection(collection.PRODUCT_COLLECTIONS)
             .find()
             .toArray();
-         console.log("allProductssssssssss", products.length);
+//         console.log("allProductssssssssss", products.length);
          resolve(products.length);
       });
    },
@@ -1534,7 +1534,7 @@ module.exports = {
    //         db.get().collection(collection.COUPONS_COLLECTIONS).findOne({couponcode:couponname}).then((response)=>{
    //         db.get().collection(collection.COUPONS_COLLECTIONS).deleteOne({response})
    //         })
-   //         console.log('coupon iddddddddddddddddddddddddddddddd',couponname);
+   ////         console.log('coupon iddddddddddddddddddddddddddddddd',couponname);
    //     })
    // }
 };

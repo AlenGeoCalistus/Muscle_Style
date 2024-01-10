@@ -34,7 +34,7 @@ router.get("/", async function (req, res, next) {
     cartCount = await userHelpers.getCartCount(req.session.user._id);
 
     productHelpers.getAllProducts().then((products) => {
-      console.log(user);
+      //console.log(user);
       res.render("user/user-dashboard", { products, user, cartCount });
     });
   } else {
@@ -81,7 +81,7 @@ router.post("/user-signup", (req, res) => {
     });
   } else {
     userHelpers.doSignup(req.body).then((response) => {
-      console.log(response);
+      //console.log(response);
       req.session.user = response;
       req.session.user = req.body;
       req.session.user.loggedIn = true;
@@ -105,7 +105,7 @@ router.get("/user-login", async (req, res) => {
 // ! NORMAL LOGIN CODE
 
 router.post("/user-login", async (req, res) => {
-  console.log("userloginbody", req.body);
+  //console.log("userloginbody", req.body);
   userHelpers.doLogin(req.body).then((response) => {
     if (response.status) {
       req.session.user = response.user;
@@ -130,7 +130,7 @@ router.get("/user-cart", verifyLogin, async (req, res) => {
   let myCouponStatus = await userHelpers.couponStatusCheck(
     req.session.user._id
   );
-  console.log("couponStatusssssssssss", myCouponStatus);
+  //console.log("couponStatusssssssssss", myCouponStatus);
 
   let products = await userHelpers.getCartProducts(req.session.user._id);
   let cartTotal = 0;
@@ -138,7 +138,7 @@ router.get("/user-cart", verifyLogin, async (req, res) => {
   if (products.length > 0) {
     cartTotal = await userHelpers.getTotalAmount(req.session.user._id);
   }
-  console.log(products);
+  //console.log(products);
   res.render("user/user-cart", {
     products,
     user: req.session.user._id,
@@ -149,7 +149,7 @@ router.get("/user-cart", verifyLogin, async (req, res) => {
 });
 
 router.get("/add-to-cart/:id", verifyLogin, async (req, res) => {
-  console.log("called");
+  //console.log("called");
   //! note to delete thhis
   // let myCouponStatus = await userHelpers.couponStatusCheck(req.session.user._id)
   userHelpers.addToCart(req.params.id, req.session.user._id).then(() => {
@@ -160,7 +160,7 @@ router.get("/add-to-cart/:id", verifyLogin, async (req, res) => {
 });
 
 router.post("/change-product-quantity", (req, res) => {
-  console.log("fffffffffffffffffffffffffffffffff", req.body);
+  //console.log("fffffffffffffffffffffffffffffffff", req.body);
   userHelpers.changeProductQuantity(req.body).then(async (response) => {
     response.total = await userHelpers.getTotalAmount(req.body.user);
     res.json(response);
@@ -168,7 +168,7 @@ router.post("/change-product-quantity", (req, res) => {
 });
 
 router.post("/removeCartProduct", (req, res) => {
-  console.log("fffffffffffffffffffffffffffffffff", req.body);
+  //console.log("fffffffffffffffffffffffffffffffff", req.body);
   userHelpers.removeProduct(req.body).then((response) => {
     res.json(response);
   });
@@ -177,7 +177,7 @@ router.post("/removeCartProduct", (req, res) => {
 router.get("/image-zoom/:id", verifyLogin, async (req, res) => {
   let user = req.session.user;
   let product = await productHelpers.getProductDetails(req.params.id);
-  console.log(product);
+  //console.log(product);
   res.render("user/image-zoom", { product, user });
 });
 
@@ -224,9 +224,9 @@ router.post("/verify-OTP", function (req, res) {
       code: OTP_CODE,
     })
     .then((response) => {
-      console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqr", response);
+      //console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqr", response);
       if (response.valid) {
-        console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", req.session.number);
+        //console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", req.session.number);
         userHelpers
           .getUserdetailsWithMobile(req.session.number)
           .then((details) => {
@@ -258,13 +258,13 @@ router.get("/mergeProfile", async (req, res) => {
 
 router.get("/user-editProfile/:id", async (req, res) => {
   let user = await productHelpers.getUserDetails(req.params.id);
-  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", user);
+  //console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaa", user);
   res.render("user/user-editProfile", { user });
 });
 
 //! edit profile original
 // router.post('/user-editProfile/:id', (req, res) => {
-//   console.log('userpropic',req.files);
+//   //console.log('userpropic',req.files);
 //   userHelpers.updateUserProfile(req.params.id, req.body,req.files).then(() => {
 //     res.redirect('/user-profile')
 //   })
@@ -273,7 +273,7 @@ router.get("/user-editProfile/:id", async (req, res) => {
 
 //! EDIT PROFILE MODIFIED
 router.post("/user-editProfile/:id", (req, res) => {
-  // console.log(req.params.id);
+  // //console.log(req.params.id);
   profilePic = false;
   let id = req.params.id;
   userHelpers.updateUserProfile(req.params.id, req.body).then(() => {
@@ -289,13 +289,13 @@ router.post("/user-editProfile/:id", (req, res) => {
 router.get("/user-buynow", verifyLogin, async (req, res) => {
   let discount = await userHelpers.getTotalDiscount(req.session.user._id);
   discount = discount / 100;
-  console.log("discounttttttttttttt", discount);
+  //console.log("discounttttttttttttt", discount);
   let total = await userHelpers.getTotalAmount(req.session.user._id);
   let finalAmt = total - discount;
   if (req.session.myCouponDiscount) {
     grandtotal = finalAmt - myCouponDiscount;
     couponStatus = true;
-    console.log("apply coupon", grandtotal);
+    //console.log("apply coupon", grandtotal);
     res.render("user/user-buynow", {
       total,
       discount,
@@ -327,7 +327,7 @@ router.post("/user-buynow", async (req, res) => {
       .placeOrder(req.body, products, grandtotal)
       .then(async (orderId) => {
         if (req.body["payment-method"] === "COD") {
-          console.log("mycoupennnnnnnnnnnnnn", req.session.myCouponDiscount);
+          //console.log("mycoupennnnnnnnnnnnnn", req.session.myCouponDiscount);
           await userHelpers.couponAdded(req.session.user._id);
 
           req.session.myCouponDiscount = null;
@@ -335,7 +335,7 @@ router.post("/user-buynow", async (req, res) => {
         } else {
           userHelpers.generateRazorpay(orderId, grandtotal).then((response) => {
             req.session.myCouponDiscount = null;
-            console.log("req.ession.couponnnnnnnnnn", req.session.coupon);
+            //console.log("req.ession.couponnnnnnnnnn", req.session.coupon);
             res.json(response);
           });
         }
@@ -356,7 +356,7 @@ router.post("/user-buynow", async (req, res) => {
 router.get("/paypal_checkout", verifyLogin, async (req, res) => {
   let discount = await userHelpers.getTotalDiscount(req.session.user._id);
   discount = discount / 100;
-  console.log("discounttttttttttttt", discount);
+  //console.log("discounttttttttttttt", discount);
   let total = await userHelpers.getTotalAmount(req.session.user._id);
   let finalAmt = total - discount;
   if (req.session.myCouponDiscount) {
@@ -372,7 +372,7 @@ router.get("/paypal_checkout", verifyLogin, async (req, res) => {
       myCouponDiscount,
     });
   } else {
-    console.log("discounttttttttttttt", finalAmt);
+    //console.log("discounttttttttttttt", finalAmt);
     res.render("user/paypal_checkout", {
       total,
       discount,
@@ -383,7 +383,7 @@ router.get("/paypal_checkout", verifyLogin, async (req, res) => {
 });
 
 router.post("/paypal_checkout", async (req, res) => {
-  console.log("paypallllllllllllllllllll", req.body);
+  //console.log("paypallllllllllllllllllll", req.body);
   let products = await userHelpers.getCartProductList(req.body.userId);
   let discount = await userHelpers.getTotalDiscount(req.session.user._id);
   discount = discount / 100;
@@ -395,12 +395,12 @@ router.post("/paypal_checkout", async (req, res) => {
       req.session.orderId = orderId;
     }
     userHelpers.generatePaypal(orderId, finalAmt).then((response) => {
-      console.log("userresponseeeeeeeeeeeeeeeeeeee", response);
+      //console.log("userresponseeeeeeeeeeeeeeeeeeee", response);
       paypal.payment.create(response, function (error, payment) {
         if (error) {
-          console.log(error);
+          //console.log(error);
         } else {
-          console.log("orderrrrrrrrPaypallllllllllllllll", payment);
+          //console.log("orderrrrrrrrPaypallllllllllllllll", payment);
           for (let i = 0; i < payment.links.length; i++) {
             if (payment.links[i].rel === "approval_url") {
               res.redirect(payment.links[i].href);
@@ -413,8 +413,8 @@ router.post("/paypal_checkout", async (req, res) => {
 });
 
 router.get("/success", (req, res) => {
-  console.log("reqbodyyyyyyyyyyy", req.query);
-  console.log("req.session.amounttttttttttt", req.session.amount);
+  //console.log("reqbodyyyyyyyyyyy", req.query);
+  //console.log("req.session.amounttttttttttt", req.session.amount);
   const payerId = req.query.PayerID;
   const paymentId = req.query.paymentId;
   let amount = req.session.amount;
@@ -435,13 +435,13 @@ router.get("/success", (req, res) => {
     paymentId,
     execute_payment_json,
     function (error, payment) {
-      console.log("rewq.session.order.id", req.session.orderId);
+      //console.log("rewq.session.order.id", req.session.orderId);
       if (error) {
-        console.log(error.response);
+        //console.log(error.response);
         throw error;
       } else {
-        console.log("booooooooooooooooooooooooooo", payment);
-        console.log(JSON.stringify(payment));
+        //console.log("booooooooooooooooooooooooooo", payment);
+        //console.log(JSON.stringify(payment));
         userHelpers.changePaymentStatus(req.session.orderId).then(() => {
           res.redirect("/order-placed");
         });
@@ -466,7 +466,7 @@ router.get("/view-orders", async (req, res) => {
 
 router.get("/cancel-order/:id", async (req, res) => {
   await userHelpers.cancelOrders(req.params.id).then((response) => {
-    console.log("usercancelorderResponse", response);
+    //console.log("usercancelorderResponse", response);
     if (response) {
       orderCancelled = "Order Has Been Cancelled !";
       res.redirect("/view-orders");
@@ -481,7 +481,7 @@ router.get("/view-cancelledOrders", async (req, res) => {
     let cancelledOrders = await userHelpers.cancelledOrders(
       req.session.user._id
     );
-    console.log("cancelledOrdersssSSSSSSSSSSSSSSSSSSSSS", cancelledOrders);
+    //console.log("cancelledOrdersssSSSSSSSSSSSSSSSSSSSSS", cancelledOrders);
     res.render("user/view-cancelledOrders", {
       user: req.session.user,
       cancelledOrders,
@@ -508,18 +508,18 @@ router.get("/view-ordered-products/:id", async (req, res) => {
 });
 
 router.post("/verify-payment", (req, res) => {
-  console.log("verifypayyyyyyyyyyyyyyyyyyy", req.body);
-  console.log(req.body);
+  //console.log("verifypayyyyyyyyyyyyyyyyyyy", req.body);
+  //console.log(req.body);
   userHelpers
     .verifyPayment(req.body)
     .then(() => {
       userHelpers.changePaymentStatus(req.body["order[receipt]"]).then(() => {
-        console.log("Payment Success");
+        //console.log("Payment Success");
         res.json({ status: true });
       });
     })
     .catch((err) => {
-      console.log(err);
+      //console.log(err);
       res.json({ status: false });
     });
 });
@@ -543,7 +543,7 @@ router.post("/addnew-address", async (req, res) => {
   userHelpers
     .addNewAddress(req.body, req.session.user._id)
     .then((newaddress) => {
-      console.log("ccccccccccccccccccccccc", newaddress.name);
+      //console.log("ccccccccccccccccccccccc", newaddress.name);
       res.render("user/user-buynow-newAddress", {
         total,
         user: req.session.user,
@@ -575,7 +575,7 @@ router.get("/update-password", verifyLogin, (req, res) => {
 
 router.post("/update-password", (req, res) => {
   userHelpers.updatePass(req.body).then((status) => {
-    console.log("response", status);
+    //console.log("response", status);
     if (status) {
       req.session.user = null;
       req.session.userPasschange = "Password Changed Successfully";
@@ -591,7 +591,7 @@ router.get("/update-passwordOTP", (req, res) => {
 router.get("/applyCoupons", async (req, res) => {
   let products = await userHelpers.getCartProducts(req.session.user._id);
   myCouponDiscount = await userHelpers.searchMyCoupon(req.session.user);
-  console.log("discountvalueeeeeeeee", myCouponDiscount);
+  //console.log("discountvalueeeeeeeee", myCouponDiscount);
   req.session.myCouponDiscount = myCouponDiscount;
   req.session.myCouponApplied = true;
   let cartTotal = 0;
