@@ -1,18 +1,18 @@
 {
-   "version": 2,
-   "routes": [
-      { "handle": "filesystem" },
-      { "src": "/", "dest": "/views/layouts/main.hbs" },
-      { "src": "/admin", "dest": "/views/layouts/admin.hbs" }
-   ],
-   "builds": [
-      {
-         "src": "app.js",
-         "use": "@now/node-server",
-         "config": { "maxLambdaSize": "50mb" }
-      }
-   ],
-   "env": {
-      "NODE_ENV": "production"
-   }
+  "version": 2,
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/", "dest": "/views/layouts/main.hbs" },
+    { "src": "/admin", "dest": "/views/layouts/admin.hbs" }
+  ],
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@now/node-server",
+      "config": { "maxLambdaSize": "50mb" }
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
