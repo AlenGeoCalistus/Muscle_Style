@@ -6,10 +6,10 @@ var objectId = require('mongodb').ObjectId
 
 module.exports = {
     addProduct: (product, callback) => { 
-        console.log(product);
+        // console.log(product);
 
         db.get().collection('product').insertOne(product).then((data) => {
-            console.log(data);
+         //   console.log(data);
             callback(data.insertedId); 
         }) 
     },
@@ -23,7 +23,7 @@ module.exports = {
     deleteProduct: (prodId) => {
         return new Promise((resolve, reject) => {
             db.get().collection(collection.PRODUCT_COLLECTIONS).deleteOne({ _id: objectId(prodId) }).then((response) => {
-                console.log(response);
+            //    console.log(response);
                 resolve(response)
             })
         })
@@ -102,16 +102,16 @@ module.exports = {
     deleteUser:(userId) => {
         return new Promise((resolve, reject) => {
             db.get().collection(collection.USER_COLLECTIONS).deleteOne({ _id: objectId(userId) }).then((response) => {
-                console.log(response);
+             //   console.log(response);
                 resolve(response)
             })
         }) 
     },
     addUser: (user, callback) => {
-        console.log(user);
+       // console.log(user);
 
         db.get().collection('user').insertOne(user).then((data) => {
-            console.log('aaaaaaaa',data);
+         //   console.log('aaaaaaaa',data);
             callback(data.insertedId);
         })
     },
@@ -134,7 +134,7 @@ module.exports = {
     deleteCoupon: (coupId) => {
         return new Promise((resolve, reject) => {
             db.get().collection(collection.COUPONS_COLLECTIONS).deleteOne({ _id: objectId(coupId) }).then((response) => {
-                console.log(response);
+                // console.log(response);
                 resolve(response)
             })
         })

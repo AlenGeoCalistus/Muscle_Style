@@ -7,5 +7,4 @@ module.exports = {
     ADDRESS_COLLECTIONS:'address',
     CANCELLED_ORDER_COLLECTIONS:'cancelled_orders',
     COUPONS_COLLECTIONS: 'coupons'
-
 }; 
