@@ -1,20 +1,19 @@
 {
-    "version": 2,
-    "routes": [
+   "version": 2,
+   "routes": [
       { "handle": "filesystem" },
       { "src": "/", "dest": "/views/layouts/main.hbs" },
       { "src": "/admin", "dest": "/views/layouts/admin.hbs" }
-    ],
-    "builds": [
+   ],
+   "builds": [
       {
-        "src": "app.js",
-        "use": "@now/node-server",
-        "config": { "maxLambdaSize": "50mb" }
+         "src": "app.js",
+         "use": "@now/node-server",
+         "config": { "maxLambdaSize": "50mb" }
       }
-    ],
-    "env": {
+   ],
+   "env": {
       "NODE_ENV": "production"
-    },
-    "assets": ["public/*.txt"],
-  }
-  
+   },
+   "assets": ["public/*.txt"]
+}
