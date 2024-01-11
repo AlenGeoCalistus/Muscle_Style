@@ -1,11 +1,8 @@
 # Node modules
 node_modules/
-
 # Environment variables file
 .env/
-
 # Vercel configuration file
 vercel.json/
-
 # Bin folder
 bin/
