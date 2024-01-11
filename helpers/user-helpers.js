@@ -92,7 +92,7 @@ module.exports = {
                resolve({ status: false });
             }
          } catch (error) {
-            console.log("error", error);
+            console.error("error", error);
             resolve({ status: false });
          }
       });
