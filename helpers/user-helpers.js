@@ -90,34 +90,73 @@ module.exports = {
       });
    },
    //! NORMAL LOGIN END
+   // adminDoLogin: (adminData) => {
+   //    return new Promise(async (resolve, reject) => {
+   //       // let loginStatus = false;
+   //       let response = {};
+   //       let admin = await db
+   //          .get()
+   //          .collection(collection.ADMIN_COLLECTIONS)
+   //          .findOne({ email: adminData.email });
+   //       if (admin) {
+   //          bcrypt
+   //             .compare(adminData.password, admin.password)
+   //             .then((adminStatus) => {
+   //                if (adminStatus) {
+   //                   //     console.log("Logged in successfully");
+   //                   response.admin = admin;
+   //                   response.adminStatus = true;
+   //                   resolve(response);
+   //                } else {
+   //                   //       console.log("Login failed");
+   //                   resolve({ status: false });
+   //                }
+   //             });
+   //       } else {
+   //          //    console.log("login failed");
+   //          resolve({ status: false });
+   //       }
+   //    });
+   // },
    adminDoLogin: (adminData) => {
       return new Promise(async (resolve, reject) => {
-         // let loginStatus = false;
          let response = {};
-         let admin = await db
-            .get()
-            .collection(collection.ADMIN_COLLECTIONS)
-            .findOne({ email: adminData.email });
-         if (admin) {
-            bcrypt
-               .compare(adminData.password, admin.password)
-               .then((adminStatus) => {
-                  if (adminStatus) {
-                     //     console.log("Logged in successfully");
-                     response.admin = admin;
-                     response.adminStatus = true;
-                     resolve(response);
-                  } else {
-                     //       console.log("Login failed");
-                     resolve({ status: false });
-                  }
-               });
-         } else {
-            //    console.log("login failed");
+
+         try {
+            const adminCollection = db
+               .get()
+               .collection(collection.ADMIN_COLLECTIONS);
+
+            if (!adminCollection) {
+               throw new Error("Admin collection not available");
+            }
+
+            let admin = await adminCollection.findOne({
+               email: adminData.email,
+            });
+
+            if (admin) {
+               bcrypt
+                  .compare(adminData.password, admin.password)
+                  .then((adminStatus) => {
+                     if (adminStatus) {
+                        response.admin = admin;
+                        response.adminStatus = true;
+                        resolve(response);
+                     } else {
+                        resolve({ status: false });
+                     }
+                  });
+            } else {
+               resolve({ status: false });
+            }
+         } catch (error) {
+            console.error("Error in adminDoLogin:", error);
             resolve({ status: false });
          }
       });
    },
+
    addToCart: (prodId, userId) => {
       let proObj = {
          item: objectId(prodId),
@@ -959,7 +998,7 @@ module.exports = {
             .collection(collection.ORDER_COLLECTIONS)
             .findOne({ _id: objectId(orderId) })
             .then((response) => {
-      //         console.log("modifyOrdersresponseeeeeeeeeee", response);
+               //         console.log("modifyOrdersresponseeeeeeeeeee", response);
                resolve(response);
             });
       });
@@ -975,7 +1014,7 @@ module.exports = {
                { $set: { status: statusId.status } }
             )
             .then((status) => {
-      //         console.log("sssssssssssssssssssss", status);
+               //         console.log("sssssssssssssssssssss", status);
                resolve();
             }),
       ]);
@@ -988,8 +1027,8 @@ module.exports = {
             .collection(collection.ORDER_COLLECTIONS)
             .find({ paymentMethod: "ONLINE" })
             .toArray();
-//         console.log("razorrrr", razorpay);
-//         console.log("razorrrr", razorpay.length);
+         //         console.log("razorrrr", razorpay);
+         //         console.log("razorrrr", razorpay.length);
          resolve(razorpay.length);
       });
    },
@@ -1041,7 +1080,7 @@ module.exports = {
                },
             ])
             .toArray();
-//         console.log("razorrrrrrrrrrrrrTotal", razorTotal[0].total);
+         //         console.log("razorrrrrrrrrrrrrTotal", razorTotal[0].total);
          resolve(razorTotal[0].total);
       });
    },
@@ -1093,7 +1132,7 @@ module.exports = {
                },
             ])
             .toArray();
-//         console.log("coddddddddddddddddTotal", CODtotal[0].total);
+         //         console.log("coddddddddddddddddTotal", CODtotal[0].total);
          resolve(CODtotal[0].total);
       });
    },
@@ -1145,7 +1184,7 @@ module.exports = {
                },
             ])
             .toArray();
-//         console.log("coddddddddddddddddTotal", paypalTotal[0].total);
+         //         console.log("coddddddddddddddddTotal", paypalTotal[0].total);
          resolve(paypalTotal[0].total);
       });
    },
@@ -1232,7 +1271,7 @@ module.exports = {
                },
             ])
             .toArray();
-//         console.log("total", total[0].total);
+         //         console.log("total", total[0].total);
          resolve(total[0].total);
       });
    },
@@ -1366,7 +1405,7 @@ module.exports = {
                },
             ])
             .toArray();
-//         console.log("total", total[0].total);
+         //         console.log("total", total[0].total);
          resolve(total[0].total);
       });
    },
@@ -1433,7 +1472,7 @@ module.exports = {
                },
             ])
             .toArray();
-//         console.log("total", total[0].total);
+         //         console.log("total", total[0].total);
          resolve(total[0].total);
       });
    },
@@ -1459,7 +1498,7 @@ module.exports = {
             .get()
             .collection(collection.COUPONS_COLLECTIONS)
             .findOne();
-//         console.log("helpersssssssssssssss", myCoupon.couponObj.discountVal);
+         //         console.log("helpersssssssssssssss", myCoupon.couponObj.discountVal);
          resolve(myCoupon.couponObj.discountVal);
       });
    },
@@ -1481,14 +1520,14 @@ module.exports = {
             .collection(collection.COUPONS_COLLECTIONS)
             .findOne({ users: userId });
          //    console.log('couponstatusssstsussssssssssss',couponStatus.users);
-//         console.log("couponStatusssssss", couponStatus);
+         //         console.log("couponStatusssssss", couponStatus);
          if (couponStatus == null) {
             couponApplied = false;
-   //         console.log("couponStatusssssssNotfound", couponStatus);
+            //         console.log("couponStatusssssssNotfound", couponStatus);
             resolve(couponApplied);
          } else {
             resolve(couponApplied);
-   //         console.log("couponStatusssssssFound", couponStatus);
+            //         console.log("couponStatusssssssFound", couponStatus);
          }
       });
    },
@@ -1500,7 +1539,7 @@ module.exports = {
             .collection(collection.USER_COLLECTIONS)
             .find()
             .toArray();
-//         console.log("alluserssssssssssssss", Users.length);
+         //         console.log("alluserssssssssssssss", Users.length);
          resolve(Users.length);
       });
    },
@@ -1512,7 +1551,7 @@ module.exports = {
             .collection(collection.ADMIN_COLLECTIONS)
             .find()
             .toArray();
-//         console.log("alladminsssssssssssss", Admin.length);
+         //         console.log("alladminsssssssssssss", Admin.length);
          resolve(Admin.length);
       });
    },
@@ -1524,7 +1563,7 @@ module.exports = {
             .collection(collection.PRODUCT_COLLECTIONS)
             .find()
             .toArray();
-//         console.log("allProductssssssssss", products.length);
+         //         console.log("allProductssssssssss", products.length);
          resolve(products.length);
       });
    },
