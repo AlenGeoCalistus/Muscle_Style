@@ -8,6 +8,7 @@ var objectId = require("mongodb").ObjectId;
 const Razorpay = require("razorpay");
 const { resolve } = require("path");
 const paypal = require("paypal-rest-sdk");
+const { log } = require("console");
 
 paypal.configure({
    mode: "sandbox",
@@ -62,62 +63,40 @@ module.exports = {
       return new Promise(async (resolve, reject) => {
          let loginStatus = false;
          let response = {};
-         let user = await db
-            .get()
-            .collection(collection.USER_COLLECTIONS)
-            .findOne({ email: userData.email });
-         if (user) {
-            bcrypt.compare(userData.password, user.password).then((status) => {
-               if (status) {
-                  if (user.blockStatus) {
-                     response.blocked = true;
-                     resolve(response);
-                  } else {
-                     //    console.log("Logged in successfully");
-                     response.user = user;
-                     response.status = true;
-                     resolve(response);
-                  }
-               } else {
-                  //      console.log("Login failed");
-                  resolve({ status: false });
-               }
-            });
-         } else {
-            //  console.log("login failed");
+         try {
+            let user = await db
+               .get()
+               .collection(collection.USER_COLLECTIONS)
+               .findOne({ email: userData.email });
+            if (user) {
+               bcrypt
+                  .compare(userData.password, user.password)
+                  .then((status) => {
+                     if (status) {
+                        if (user.blockStatus) {
+                           response.blocked = true;
+                           resolve(response);
+                        } else {
+                           //    console.log("Logged in successfully");
+                           response.user = user;
+                           response.status = true;
+                           resolve(response);
+                        }
+                     } else {
+                        //      console.log("Login failed");
+                        resolve({ status: false });
+                     }
+                  });
+            } else {
+               //  console.log("login failed");
+               resolve({ status: false });
+            }
+         } catch (error) {
+            console.log("error", error);
             resolve({ status: false });
          }
       });
    },
-   //! NORMAL LOGIN END
-   // adminDoLogin: (adminData) => {
-   //    return new Promise(async (resolve, reject) => {
-   //       // let loginStatus = false;
-   //       let response = {};
-   //       let admin = await db
-   //          .get()
-   //          .collection(collection.ADMIN_COLLECTIONS)
-   //          .findOne({ email: adminData.email });
-   //       if (admin) {
-   //          bcrypt
-   //             .compare(adminData.password, admin.password)
-   //             .then((adminStatus) => {
-   //                if (adminStatus) {
-   //                   //     console.log("Logged in successfully");
-   //                   response.admin = admin;
-   //                   response.adminStatus = true;
-   //                   resolve(response);
-   //                } else {
-   //                   //       console.log("Login failed");
-   //                   resolve({ status: false });
-   //                }
-   //             });
-   //       } else {
-   //          //    console.log("login failed");
-   //          resolve({ status: false });
-   //       }
-   //    });
-   // },
    adminDoLogin: (adminData) => {
       return new Promise(async (resolve, reject) => {
          let response = {};
@@ -156,6 +135,35 @@ module.exports = {
          }
       });
    },
+   //! NORMAL LOGIN END
+   // adminDoLogin: (adminData) => {
+   //    return new Promise(async (resolve, reject) => {
+   //       // let loginStatus = false;
+   //       let response = {};
+   //       let admin = await db
+   //          .get()
+   //          .collection(collection.ADMIN_COLLECTIONS)
+   //          .findOne({ email: adminData.email });
+   //       if (admin) {
+   //          bcrypt
+   //             .compare(adminData.password, admin.password)
+   //             .then((adminStatus) => {
+   //                if (adminStatus) {
+   //                   //     console.log("Logged in successfully");
+   //                   response.admin = admin;
+   //                   response.adminStatus = true;
+   //                   resolve(response);
+   //                } else {
+   //                   //       console.log("Login failed");
+   //                   resolve({ status: false });
+   //                }
+   //             });
+   //       } else {
+   //          //    console.log("login failed");
+   //          resolve({ status: false });
+   //       }
+   //    });
+   // },
 
    addToCart: (prodId, userId) => {
       let proObj = {
