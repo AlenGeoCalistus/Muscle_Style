@@ -3,7 +3,7 @@ const mongoClient = require("mongodb").MongoClient;
 const USERNAME = process.env.MONGO_USERNAME;
 const PASSWORD = process.env.MONGO_PASSWORD;
 const CLUSTER = process.env.MONGO_CLUSTER;
-//intital db state null
+//initial db state null
 const state = {
    db: null,
 };
@@ -15,7 +15,7 @@ module.exports.connect = function (done) {
 
    mongoClient.connect(URI, (err, data) => {
       if (err) {
-         console.log("error");
+         console.log("errorr",);
          return done(err);
       } else {
          state.db = data.db(dbname);

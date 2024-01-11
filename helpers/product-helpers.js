@@ -26,7 +26,6 @@ module.exports = {
                `Collection ${collection.PRODUCT_COLLECTIONS} is null`
             );
          }
-
          let products = await productCollection.find().toArray();
          return products;
       } catch (error) {

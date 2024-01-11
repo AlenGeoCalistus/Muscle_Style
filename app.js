@@ -16,6 +16,7 @@ var userRouter = require("./routes/user");
 var adminRouter = require("./routes/admin");
 
 var app = express();
+const server = http.createServer(app);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -74,7 +75,7 @@ app.use(function (err, req, res, next) {
 });
 app.set("port", normalizePort(process.env.PORT || "3000"));
 
-const server = http.createServer(app);
+
 
 server.listen(app.get("port"));
 server.on("error", onError);
