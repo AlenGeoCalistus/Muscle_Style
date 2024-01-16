@@ -59,32 +59,38 @@ router.get("/user-signup", (req, res) => {
    res.render("user/user-signup");
 });
 
-router.post("/user-signup", (req, res) => {
-   let name = req.body.name;
-   let password = req.body.password;
-   let phone = req.body.phone;
-   if (
-      name.length < 4 ||
-      name.length == null ||
-      name == !NaN ||
-      name == Number(name)
-   ) {
-      res.render("user/user-signup", { errname: "Invalid Name !" });
-   } else if (password.length < 3) {
-      res.render("user/user-signup", {
-         errpass: "Enter password more than 3 characters !",
-      });
-   } else if (phone.length < 10 || phone.length > 10) {
-      res.render("user/user-signup", {
-         errphone: "Enter valid Phone Number of 10 digits !",
-      });
-   } else {
-      userHelpers.doSignup(req.body).then((response) => {
+router.post("/user-signup", async (req, res) => {
+   try {
+      let name = req.body.name;
+      let password = req.body.password;
+      let phone = req.body.phone;
+
+      if (
+         name.length < 4 ||
+         name.length == null ||
+         name == !NaN ||
+         name == Number(name)
+      ) {
+         res.render("user/user-signup", { errname: "Invalid Name !" });
+      } else if (password.length < 3) {
+         res.render("user/user-signup", {
+            errpass: "Enter password more than 3 characters !",
+         });
+      } else if (phone.length !== 10) {
+         res.render("user/user-signup", {
+            errphone: "Enter valid Phone Number of 10 digits !",
+         });
+      } else {
+         // Assuming userHelpers.doSignup returns a promise
+         let response = await userHelpers.doSignup(req.body);
          req.session.user = response;
-         req.session.user = req.body;
          req.session.user.loggedIn = true;
          res.redirect("/");
-      });
+      }
+   } catch (error) {
+      // Handle the error here, you can log it or render an error page
+      console.error("Error in user signup:", error);
+      res.render("error", { message: "An error occurred during signup." });
    }
 });
 
