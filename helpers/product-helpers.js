@@ -6,13 +6,12 @@ var objectId = require("mongodb").ObjectId;
 
 module.exports = {
    addProduct: (product, callback) => {
-      // console.log(product);
-
+      console.log(product);
       db.get()
          .collection("product")
          .insertOne(product)
          .then((data) => {
-            //   console.log(data);
+              console.log("data",data);
             callback(data.insertedId);
          });
    },

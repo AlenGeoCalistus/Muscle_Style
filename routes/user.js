@@ -84,6 +84,7 @@ router.post("/user-signup", async (req, res) => {
          // Assuming userHelpers.doSignup returns a promise
          let response = await userHelpers.doSignup(req.body);
          req.session.user = response;
+         req.session.user = req.body;
          req.session.user.loggedIn = true;
          res.redirect("/");
       }
