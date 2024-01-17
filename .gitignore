@@ -8,3 +8,5 @@ vercel.json/
 bin/
 #Source folder
 Source/
+
+.DS_Store
