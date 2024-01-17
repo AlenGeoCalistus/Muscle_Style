@@ -8,21 +8,20 @@ const state = {
 module.exports.connect = function (done) {
    // const url = 'mongodb://localhost:27017/'
    // const URI = process.env.MONGO_URI;
-   const URI = process.env.MONGO_URI;
+   const url = process.env.MONGO_URI;
    const dbname = "fitness";
 
-   mongoClient.connect(URI, (err, data) => {
+   mongoClient.connect(url, (err, data) => {
       if (err) {
-         console.log("error",);
+         console.log("error",err);
          return done(err);
       } else {
          state.db = data.db(dbname);
-         return done();
+         done();
       }
    });
 
    module.exports.get = () => {
-      console.log("error in getting state.db");
       return state.db;
    };
 };
