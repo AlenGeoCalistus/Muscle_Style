@@ -36,17 +36,62 @@ var instance = new Razorpay({
 });
 
 module.exports = {
-   doSignup: (userData) => {
+   checkUserExistence: (userData) => {
       return new Promise(async (resolve, reject) => {
-         userData.password = await bcrypt.hash(userData.password, 10);
-         db.get()
+         const emailExists = await db
+            .get()
             .collection(collection.USER_COLLECTIONS)
-            .insertOne(userData)
-            .then((data) => {
-               resolve(data.insertedId);
-            });
+            .findOne({ email: userData.email });
+
+         const phoneExists = await db
+            .get()
+            .collection(collection.USER_COLLECTIONS)
+            .findOne({ phone: userData.phone });
+
+         if (emailExists) {
+            resolve({ error: "Email already exists" });
+         } else if (phoneExists) {
+            resolve({ error: "Phone number already exists" });
+         } else {
+            resolve({ success: true });
+         }
       });
    },
+
+   doSignup: async (userData) => {
+      try {
+         const userExistenceCheck = await module.exports.checkUserExistence(
+            userData
+         );
+
+         if (userExistenceCheck.error) {
+            return Promise.reject(userExistenceCheck.error);
+         }
+
+         userData.password = await bcrypt.hash(userData.password, 10);
+
+         const data = await db
+            .get()
+            .collection(collection.USER_COLLECTIONS)
+            .insertOne(userData);
+
+         return Promise.resolve(data.insertedId);
+      } catch (error) {
+         return Promise.reject(error);
+      }
+   },
+
+   // doSignup: (userData) => {
+   //    return new Promise(async (resolve, reject) => {
+   //       userData.password = await bcrypt.hash(userData.password, 10);
+   //       db.get()
+   //          .collection(collection.USER_COLLECTIONS)
+   //          .insertOne(userData)
+   //          .then((data) => {
+   //             resolve(data.insertedId);
+   //          });
+   //    });
+   // },
    adminDoSignup: (adminData) => {
       return new Promise(async (resolve, reject) => {
          adminData.password = await bcrypt.hash(adminData.password, 10);
