@@ -7,6 +7,7 @@ const state = {
 
 module.exports.connect = function (done) {
    // const url = 'mongodb://localhost:27017/'
+   // const URI = process.env.MONGO_URI;
    const URI = process.env.MONGO_URI;
    const dbname = "fitness";
 
