@@ -50,6 +50,7 @@ router.get("/detailed-view", (req, res) => {
       });
    } else {
       productHelpers.getAllProducts().then((products) => {
+         console.log("detailed-view",products);
          res.render("user/detailed-view", { products, notUser });
       });
    }

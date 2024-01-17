@@ -2,8 +2,7 @@
 node_modules/
 # Environment variables file
 .env
-# Bin folder
-bin/
+
 #Source folder
 Source/
  

@@ -31,7 +31,7 @@ app.engine(
    })
 );
 
-app.use(logger("common"));
+// app.use(logger("common"));
 // app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
