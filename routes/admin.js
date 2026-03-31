@@ -3,6 +3,7 @@ const async = require("hbs/lib/async");
 var router = express.Router();
 var productHelpers = require("../helpers/product-helpers");
 const userHelpers = require("../helpers/user-helpers");
+const cloudinary = require("../config/cloudinary");
 
 let acc = "ACCOUNT";
 /* GET users listing. */
@@ -120,19 +121,32 @@ router.get("/admin-editproduct/:id", async (req, res) => {
    }
 });
 
-router.post("/admin-editproduct/:id", (req, res) => {
-   //console.log(req.params.id);
+router.post("/admin-editproduct/:id", async (req, res) => {
    let id = req.params.id;
-   productHelpers.updateProduct(req.params.id, req.body).then(() => {
+   try {
       if (req.files && req.files.image) {
-         let Image = req.files.image;
-         Image.mv("./public/product-images/" + id + ".jpg", () => {
-            res.redirect("/admin");
+         const file = req.files.image;
+         const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+               { folder: "muscle_style/products" },
+               (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+               }
+            );
+            stream.end(file.data);
          });
-      } else {
-         res.redirect("/admin");
+         req.body.image_url = result.secure_url;
+         req.body.image_id = result.public_id;
       }
-   });
+
+      productHelpers.updateProduct(id, req.body).then(() => {
+         res.redirect("/admin/admin-viewproducts");
+      });
+   } catch (error) {
+      console.error("Cloudinary Edit Error:", error);
+      res.redirect("/admin/admin-viewproducts");
+   }
 });
 
 router.get("/admin-deleteproduct/:id", (req, res) => {
@@ -152,24 +166,32 @@ router.get("/admin-addproduct", (req, res) => {
    }
 });
 
-router.post("/admin-addproduct", (req, res) => {
-   //console.log(req.body);
+router.post("/admin-addproduct", async (req, res) => {
    let admin = req.session.admin;
-   productHelpers.addProduct(req.body, (id) => {
+   try {
       if (req.files && req.files.image) {
-         let Image = req.files.image;
-         Image.mv("./public/product-images/" + id + ".jpg", (err) => {
-            if (!err) {
-               res.render("admin/admin-addproduct", { admin: true, admin });
-            } else {
-               console.error("Image upload error:", err);
-               res.render("admin/admin-addproduct", { admin: true, admin });
-            }
+         const file = req.files.image;
+         const result = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+               { folder: "muscle_style/products" },
+               (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+               }
+            );
+            stream.end(file.data);
          });
-      } else {
-         res.render("admin/admin-addproduct", { admin: true, admin });
+         req.body.image_url = result.secure_url;
+         req.body.image_id = result.public_id;
       }
-   });
+
+      productHelpers.addProduct(req.body, (id) => {
+         res.render("admin/admin-addproduct", { admin: true, admin });
+      });
+   } catch (error) {
+      console.error("Cloudinary Upload Error:", error);
+      res.render("admin/admin-addproduct", { admin: true, admin, error: "Image upload failed" });
+   }
 });
 
 router.get("/admin-viewusers", (req, res) => {

@@ -27,7 +27,7 @@
            
             <div class="col-md-3" >
                 <div id="img-container" class="card" style="width: 40rem; height; ">
-                    <img src="/product-images/{{product._id}}.jpg" class="card-img-top" alt="..."
+                    <img src="{{#if product.image_url}}{{product.image_url}}{{else}}/product-images/{{product._id}}.jpg{{/if}}" class="card-img-top" alt="..."
                             style="12rem; margin-top:2rem ">
                     <div class="card-body">
                         <h5 style="font-weight: bold;" class="card-title">{{product.brand}}</h5>

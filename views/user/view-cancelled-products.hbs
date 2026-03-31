@@ -23,7 +23,7 @@
             {{#each products}}
             <div class="col-md-4  mt-5">
                 <div class="card" style="width: 15rem; height: 25rem; color: #151515;"> 
-                    <img class="card-img-top" src="/product-images/{{this.product._id}}.jpg" alt="card image cap"
+                    <img class="card-img-top" src="{{#if this.product.image_url}}{{this.product.image_url}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}" alt="card image cap"
                         style="height: 12rem;">
                     <div class="card-body" style="background: #151515;">
                         <h5 style="color: #a9a9a9;" class="card-title">{{this.product.brand}}</h5>

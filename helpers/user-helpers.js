@@ -544,9 +544,11 @@ module.exports = {
             .collection(collection.ORDER_COLLECTIONS)
             .insertOne(orderObj)
             .then((response) => {
-               db.get()
-                  .collection(collection.CART_COLLECTIONS)
-                  .deleteOne({ user: objectId(order.userId) });
+               if (order["payment-method"] === "COD") {
+                  db.get()
+                     .collection(collection.CART_COLLECTIONS)
+                     .deleteOne({ user: objectId(order.userId) });
+               }
                resolve(response.insertedId);
             });
       });
@@ -577,9 +579,7 @@ module.exports = {
             .collection(collection.ORDER_COLLECTIONS)
             .insertOne(orderObj)
             .then((response) => {
-               db.get()
-                  .collection(collection.CART_COLLECTIONS)
-                  .deleteOne({ user: objectId(order.userId) });
+               // For PayPal, cart should only be deleted after successful payment verification in /success route
                resolve(response.insertedId);
             });
       });
@@ -805,7 +805,8 @@ module.exports = {
       });
    },
    changePaymentStatus: (orderId) => {
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
+         let order = await db.get().collection(collection.ORDER_COLLECTIONS).findOne({ _id: objectId(orderId) });
          db.get()
             .collection(collection.ORDER_COLLECTIONS)
             .updateOne(
@@ -817,6 +818,11 @@ module.exports = {
                }
             )
             .then(() => {
+               if (order) {
+                  db.get()
+                     .collection(collection.CART_COLLECTIONS)
+                     .deleteOne({ user: objectId(order.userId) });
+               }
                resolve();
             });
       });

@@ -26,7 +26,7 @@
                 <div class="blog-item">
                     {{#each products}}
                     <div class="bi-pic">
-                        <img src="/product-images/{{this.product._id}}.jpg" alt="">
+                        <img src="{{#if this.product.image_url}}{{this.product.image_url}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}" alt="">
                     </div>
                     <div class="bi-text mb-2">
                         <h5><a href="#">{{this.product.brand}}</a></h5>

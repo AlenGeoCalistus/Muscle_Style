@@ -32,7 +32,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="class-item">
                     <div class="ci-pic">
-                        <img src="/product-images/{{this._id}}.jpg" alt="">
+                        <img src="{{#if this.image_url}}{{this.image_url}}{{else}}/product-images/{{this._id}}.jpg{{/if}}" alt="">
                     </div>
                     <div class="ci-text">
                         <span>{{this.name}}</span>

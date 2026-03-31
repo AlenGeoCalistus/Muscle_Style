@@ -6,12 +6,10 @@ var objectId = require("mongodb").ObjectId;
 
 module.exports = {
    addProduct: (product, callback) => {
-      console.log(product);
       db.get()
-         .collection("product")
+         .collection(collection.PRODUCT_COLLECTIONS)
          .insertOne(product)
          .then((data) => {
-              console.log("data",data);
             callback(data.insertedId);
          });
    },
@@ -56,20 +54,24 @@ module.exports = {
    },
    updateProduct: (prodId, proDetails) => {
       return new Promise((resolve, reject) => {
+         let updateData = {
+            brand: proDetails.brand,
+            name: proDetails.name,
+            category: proDetails.category,
+            discription: proDetails.discription,
+            price: proDetails.price,
+            discount: proDetails.discount,
+            offer: proDetails.offer,
+         };
+         if (proDetails.image_url) {
+            updateData.image_url = proDetails.image_url;
+         }
          db.get()
             .collection(collection.PRODUCT_COLLECTIONS)
             .updateOne(
                { _id: objectId(prodId) },
                {
-                  $set: {
-                     brand: proDetails.brand,
-                     name: proDetails.name,
-                     category: proDetails.category,
-                     discription: proDetails.discription,
-                     price: proDetails.price,
-                     discount: proDetails.discount,
-                     offer: proDetails.offer,
-                  },
+                  $set: updateData,
                }
             )
             .then((response) => {

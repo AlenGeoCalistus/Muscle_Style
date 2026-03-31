@@ -47,7 +47,7 @@
                                 </div>
 
                             </div>
-                            <img src="/product-images/{{product._id}}.jpg" alt="" style="width: 100px;height: auto;"
+                            <img src="{{#if product.image_url}}{{product.image_url}}{{else}}/product-images/{{product._id}}.jpg{{/if}}" alt="" style="width: 100px;height: auto;"
                                 id="imgView">
                             <input type="file" name="image" class="form-control" onchange="viewImage(event)">
 

@@ -83,7 +83,7 @@
                                             <div class="carousel-item active">
 
                                                 <img style="margin-left: 30px; margin-top: 20px;"
-                                                    src="/product-images/{{this.product._id}}.jpg" alt="">
+                                                    src="{{#if this.product.image_url}}{{this.product.image_url}}{{else}}/product-images/{{this.product._id}}.jpg{{/if}}" alt="">
                                             </div>
 
                                             </a>

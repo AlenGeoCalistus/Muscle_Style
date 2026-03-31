@@ -30,7 +30,7 @@
                 <div class="card mb-2"  style="border: 1px solid #363636;">
                     <div class="text-center" style="background: #151515;">
                        <a href="/image-zoom/{{this._id}}"> <img style="background:#151515;  width:200px;  height:270px; "
-                            src="/product-images/{{this._id}}.jpg" class="card-img-top mt-3" alt="protein" /></a>
+                             src="{{#if this.image_url}}{{this.image_url}}{{else}}/product-images/{{this._id}}.jpg{{/if}}" class="card-img-top mt-3" alt="protein" /></a>
                     </div>
                     <div class="card-body" style=" background:#252525;border: 1px solid #363636;">
                         

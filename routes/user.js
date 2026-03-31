@@ -553,7 +553,7 @@ router.get("/success", (req, res) => {
       }
    );
 });
-router.get("/cancel", (req, res) => res.redirect("/"));
+router.get("/cancel", (req, res) => res.redirect("/payment-error"));
 
 router.get("/order-placed", (req, res) => {
    res.render("user/order-placed", { user: req.session.user });
