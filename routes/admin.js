@@ -53,35 +53,27 @@ router.get("/admin-signup", (req, res) => {
 });
 
 router.post("/admin-signup", (req, res) => {
-   let admin = "admin";
-   let adminemail = "admin@gmail.com"
-   let adminph = 8089778809;
-   let adminpass = 123;
-
    let name = req.body.name;
-   let email = req.body.email
+   let email = req.body.email;
    let phone = req.body.phone;
    let password = req.body.password;
-   // if (name.length < 4 || name.length == null || name == !NaN) {
-   //   res.render('admin/admin-signup', { errname: "Enter valid name" })
-   // } else if (password.length < 3) {
-   //   res.render('admin/admin-signup', { errpass: "Enter valid password" })
-   // } else if (phone.length < 10) {
-   //   res.render("admin/admin-signup", { errphone: "Enter valid Phone Number of 10 digits !" });
-   // } else {
-   if (name == admin && password == adminpass && phone == adminph && email == adminemail) {
+
+   if (name.length < 4 || name.length == null) {
+      res.render("admin/admin-signup", { errname: "Enter valid name" });
+   } else if (password.length < 3) {
+      res.render("admin/admin-signup", { errpass: "Enter valid password" });
+   } else if (phone.length < 10) {
+      res.render("admin/admin-signup", {
+         errphone: "Enter valid Phone Number of 10 digits !",
+      });
+   } else {
       userHelpers.adminDoSignup(req.body).then((response) => {
-         //console.log('admin signupcred',response);
          req.session.admin = response;
          req.session.admin = req.body;
          req.session.admin.loggedIn = true;
          res.redirect("/admin");
       });
-   } else {
-      res.redirect("/admin/admin-signup");
    }
-
-   // }
 });
 
 router.get("/admin-logout", (req, res) => {
@@ -132,10 +124,13 @@ router.post("/admin-editproduct/:id", (req, res) => {
    //console.log(req.params.id);
    let id = req.params.id;
    productHelpers.updateProduct(req.params.id, req.body).then(() => {
-      res.redirect("/admin");
-      if (req.files.image) {
+      if (req.files && req.files.image) {
          let Image = req.files.image;
-         Image.mv("./public/product-images/" + id + ".jpg");
+         Image.mv("./public/product-images/" + id + ".jpg", () => {
+            res.redirect("/admin");
+         });
+      } else {
+         res.redirect("/admin");
       }
    });
 });
@@ -159,17 +154,21 @@ router.get("/admin-addproduct", (req, res) => {
 
 router.post("/admin-addproduct", (req, res) => {
    //console.log(req.body);
-   //console.log(req.files.image);
    let admin = req.session.admin;
    productHelpers.addProduct(req.body, (id) => {
-      let Image = req.files.image;
-      Image.mv("./public/product-images/" + id + ".jpg", (err, done) => {
-         if (!err) {
-            res.render("admin/admin-addproduct", { admin: true, admin });
-         } else {
-            //console.log(err);
-         }
-      });
+      if (req.files && req.files.image) {
+         let Image = req.files.image;
+         Image.mv("./public/product-images/" + id + ".jpg", (err) => {
+            if (!err) {
+               res.render("admin/admin-addproduct", { admin: true, admin });
+            } else {
+               console.error("Image upload error:", err);
+               res.render("admin/admin-addproduct", { admin: true, admin });
+            }
+         });
+      } else {
+         res.render("admin/admin-addproduct", { admin: true, admin });
+      }
    });
 });
 

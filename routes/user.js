@@ -9,10 +9,21 @@ const paypal = require("paypal-rest-sdk");
 
 //! Twilio token
 
-const serviceSID = process.env.SERVICEsID;
-const accountSID = process.env.ACCOUNTsID;
-const authToken = process.env.AUTHTOKEN;
-const client = require("twilio")(accountSID, authToken);
+// Lazy Twilio client - only initialize when actually needed
+let _twilioClient = null;
+const getClient = () => {
+   if (!_twilioClient) {
+      const accountSID = process.env.TWILIO_ACCOUNT_SID;
+      const authToken = process.env.TWILIO_AUTH_TOKEN;
+      if (!accountSID || !authToken) {
+         console.warn("Twilio credentials missing in environment variables.");
+         return null;
+      }
+      _twilioClient = require("twilio")(accountSID, authToken);
+   }
+   return _twilioClient;
+};
+const serviceSID = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 const verifyLogin = (req, res, next) => {
    if (req.session.user) {
@@ -22,8 +33,8 @@ const verifyLogin = (req, res, next) => {
    }
 };
 
-let myCouponDiscount;
-let myCouponApplied = false;
+// Removed global myCouponDiscount and myCouponApplied to prevent cross-user data leakage.
+// These are now handled within session.
 
 /* GET home page. */
 router.get("/", async function (req, res, next) {
@@ -173,25 +184,36 @@ router.get("/user-logout", (req, res) => {
 
 //! cart original
 router.get("/user-cart", verifyLogin, async (req, res) => {
-   let users;
-   let myCouponStatus = await userHelpers.couponStatusCheck(
-      req.session.user._id
-   );
+   try {
+      let myCouponStatus = await userHelpers.couponStatusCheck(
+         req.session.user._id
+      );
 
-   let products = await userHelpers.getCartProducts(req.session.user._id);
-   let cartTotal = 0;
-   user = req.session.user;
-   if (products.length > 0) {
-      cartTotal = await userHelpers.getTotalAmount(req.session.user._id);
+      let products = await userHelpers.getCartProducts(req.session.user._id);
+      let cartTotal = 0;
+      let user = req.session.user;
+      if (products.length > 0) {
+         cartTotal = await userHelpers.getTotalAmount(req.session.user._id);
+      }
+
+      res.render("user/user-cart", {
+         products,
+         user: req.session.user._id,
+         cartTotal,
+         user,
+         myCouponStatus,
+      });
+   } catch (error) {
+      console.error("Cart retrieval error:", error);
+      res.render("user/user-cart", {
+         products: [],
+         user: req.session.user._id,
+         cartTotal: 0,
+         user: req.session.user,
+         myCouponStatus: false,
+         error: "Could not load cart data. Please try again later."
+      });
    }
-
-   res.render("user/user-cart", {
-      products,
-      user: req.session.user._id,
-      cartTotal,
-      user,
-      myCouponStatus,
-   });
 });
 
 router.get("/add-to-cart/:id", verifyLogin, async (req, res) => {
@@ -239,14 +261,19 @@ router.post("/OTP_login", (req, res) => {
    userHelpers.doOtpLogin(req.body).then((response) => {
       if (response.status) {
          req.session.number = req.body.phone;
-         client.verify
-            .services(process.env.serviceSID)
+         getClient().verify
+            .services(serviceSID)
             .verifications.create({
                to: `+91${req.body.phone}`,
                channel: "sms",
             })
             .then(() => {
                res.render("user/enter-OTP");
+            })
+            .catch((err) => {
+               console.error("Twilio Verification Create Error:", err);
+               req.session.userLoginErr = "Could not send OTP. Please try again later.";
+               res.redirect("/OTP_login");
             });
       } else {
          req.session.userLoginErr = "Invalid Username or Password";
@@ -260,8 +287,8 @@ router.post("/OTP_login", (req, res) => {
 router.post("/verify-OTP", function (req, res) {
    let OTP_CODE = req.body.OTP_CODE;
 
-   client.verify
-      .services(process.env.serviceSID)
+   getClient().verify
+      .services(serviceSID)
       .verificationChecks.create({
          to: `+91${req.session.number}`,
          code: OTP_CODE,
@@ -270,12 +297,12 @@ router.post("/verify-OTP", function (req, res) {
          if (response.valid) {
             userHelpers
                .getUserdetailsWithMobile(req.session.number)
-               .then((details) => {
+               .then((user) => {
                   if (
-                     details.blockStatus == false ||
-                     details.blockStatus == null
+                     user.blockStatus == false ||
+                     user.blockStatus == null
                   ) {
-                     req.session.user = details[0];
+                     req.session.user = user[0];
                      req.session.loggedIn = true;
 
                      res.redirect("/");
@@ -335,9 +362,11 @@ router.get("/user-buynow", verifyLogin, async (req, res) => {
 
    let total = await userHelpers.getTotalAmount(req.session.user._id);
    let finalAmt = total - discount;
+   let myCouponDiscount = req.session.myCouponDiscount || 0;
+   
    if (req.session.myCouponDiscount) {
-      grandtotal = finalAmt - myCouponDiscount;
-      couponStatus = true;
+      let grandtotal = finalAmt - myCouponDiscount;
+      let couponStatus = true;
 
       res.render("user/user-buynow", {
          total,
@@ -348,14 +377,15 @@ router.get("/user-buynow", verifyLogin, async (req, res) => {
          couponStatus,
          myCouponDiscount,
       });
+   } else {
+      res.render("user/user-buynow", {
+         total,
+         discount,
+         finalAmt,
+         user: req.session.user,
+         myCouponDiscount,
+      });
    }
-   res.render("user/user-buynow", {
-      total,
-      discount,
-      finalAmt,
-      user: req.session.user,
-      myCouponDiscount,
-   });
 });
 
 router.post("/user-buynow", async (req, res) => {
@@ -364,6 +394,13 @@ router.post("/user-buynow", async (req, res) => {
    discount = discount / 100;
    let totalAmount = await userHelpers.getTotalAmount(req.body.userId);
    let finalAmt = totalAmount - discount;
+   let myCouponDiscount = req.session.myCouponDiscount || 0;
+
+   if (req.body["payment-method"] !== "COD" && !userHelpers.areRazorpayKeysValid()) {
+      console.error("Razorpay credentials missing - preventing order placement");
+      return res.json({ paymentGatewayError: true });
+   }
+
    if (req.session.myCouponDiscount) {
       let grandtotal = finalAmt - myCouponDiscount;
       userHelpers
@@ -379,8 +416,11 @@ router.post("/user-buynow", async (req, res) => {
                   .generateRazorpay(orderId, grandtotal)
                   .then((response) => {
                      req.session.myCouponDiscount = null;
-
                      res.json(response);
+                  })
+                  .catch((err) => {
+                     console.error("Razorpay generation failed:", err);
+                     res.json({ paymentGatewayError: true });
                   });
             }
          });
@@ -389,9 +429,15 @@ router.post("/user-buynow", async (req, res) => {
          if (req.body["payment-method"] === "COD") {
             res.json({ codSuccess: true });
          } else {
-            userHelpers.generateRazorpay(orderId, finalAmt).then((response) => {
-               res.json(response);
-            });
+            userHelpers
+               .generateRazorpay(orderId, finalAmt)
+               .then((response) => {
+                  res.json(response);
+               })
+               .catch((err) => {
+                  console.error("Razorpay generation failed:", err);
+                  res.json({ paymentGatewayError: true });
+               });
          }
       });
    }
@@ -403,9 +449,11 @@ router.get("/paypal_checkout", verifyLogin, async (req, res) => {
 
    let total = await userHelpers.getTotalAmount(req.session.user._id);
    let finalAmt = total - discount;
+   let myCouponDiscount = req.session.myCouponDiscount || 0;
+
    if (req.session.myCouponDiscount) {
-      couponStatus = true;
-      grandtotal = finalAmt - myCouponDiscount;
+      let couponStatus = true;
+      let grandtotal = finalAmt - myCouponDiscount;
       res.render("user/paypal_checkout", {
          total,
          discount,
@@ -421,16 +469,23 @@ router.get("/paypal_checkout", verifyLogin, async (req, res) => {
          discount,
          finalAmt,
          user: req.session.user,
+         myCouponDiscount,
       });
    }
 });
 
 router.post("/paypal_checkout", async (req, res) => {
+   if (!userHelpers.arePaypalKeysValid()) {
+      console.error("PayPal credentials missing");
+      return res.redirect("/payment-error");
+   }
+
    let products = await userHelpers.getCartProductList(req.body.userId);
    let discount = await userHelpers.getTotalDiscount(req.session.user._id);
    discount = discount / 100;
    let totalAmount = await userHelpers.getTotalAmount(req.body.userId);
    let finalAmt = totalAmount - discount;
+   
    userHelpers
       .placeOrderPaypal(req.body, products, finalAmt)
       .then((orderId) => {
@@ -438,18 +493,32 @@ router.post("/paypal_checkout", async (req, res) => {
             req.session.amount = finalAmt;
             req.session.orderId = orderId;
          }
-         userHelpers.generatePaypal(orderId, finalAmt).then((response) => {
-            paypal.payment.create(response, function (error, payment) {
-               if (error) {
-               } else {
-                  for (let i = 0; i < payment.links.length; i++) {
-                     if (payment.links[i].rel === "approval_url") {
-                        res.redirect(payment.links[i].href);
+         userHelpers
+            .generatePaypal(orderId, finalAmt)
+            .then((response) => {
+               paypal.payment.create(response, function (error, payment) {
+                  if (error) {
+                     console.error("PayPal payment creation failed:", error);
+                     res.redirect("/payment-error");
+                  } else {
+                     for (let i = 0; i < payment.links.length; i++) {
+                        if (payment.links[i].rel === "approval_url") {
+                           return res.redirect(payment.links[i].href);
+                        }
                      }
+                     // Fallback if no approval URL found
+                     res.redirect("/payment-error");
                   }
-               }
+               });
+            })
+            .catch((err) => {
+               console.error("PayPal generation helper failed:", err);
+               res.redirect("/payment-error");
             });
-         });
+      })
+      .catch((err) => {
+         console.error("Order placement for PayPal failed:", err);
+         res.redirect("/payment-error");
       });
 });
 
@@ -488,6 +557,10 @@ router.get("/cancel", (req, res) => res.redirect("/"));
 
 router.get("/order-placed", (req, res) => {
    res.render("user/order-placed", { user: req.session.user });
+});
+
+router.get("/payment-error", (req, res) => {
+   res.render("user/payment-error", { user: req.session.user });
 });
 
 router.get("/view-orders", async (req, res) => {
@@ -619,22 +692,32 @@ router.get("/update-passwordOTP", (req, res) => {
 });
 
 router.get("/applyCoupons", async (req, res) => {
-   let products = await userHelpers.getCartProducts(req.session.user._id);
-   myCouponDiscount = await userHelpers.searchMyCoupon(req.session.user);
+   try {
+      if (!req.session.user) {
+         return res.redirect("/user-login");
+      }
+      
+      let products = await userHelpers.getCartProducts(req.session.user._id);
+      let myCouponDiscount = await userHelpers.searchMyCoupon(req.session.user._id);
 
-   req.session.myCouponDiscount = myCouponDiscount;
-   req.session.myCouponApplied = true;
-   let cartTotal = 0;
-   user = req.session.user;
-   cartTotal = await userHelpers.getTotalAmount(req.session.user._id);
-   res.render("user/coupon_cart", {
-      products,
-      user: req.session.user._id,
-      cartTotal,
-      user,
-      myCouponDiscount,
-      couponStatus: true,
-   });
+      req.session.myCouponDiscount = myCouponDiscount;
+      req.session.myCouponApplied = true;
+      let cartTotal = 0;
+      let user = req.session.user;
+      cartTotal = await userHelpers.getTotalAmount(req.session.user._id);
+      
+      res.render("user/coupon_cart", {
+         products,
+         user: req.session.user._id,
+         cartTotal,
+         user,
+         myCouponDiscount,
+         couponStatus: true,
+      });
+   } catch (error) {
+      console.error("Error in /applyCoupons:", error);
+      res.redirect("/user-cart");
+   }
 });
 
 module.exports = router;

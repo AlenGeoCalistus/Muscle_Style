@@ -10,32 +10,36 @@ const { resolve } = require("path");
 const paypal = require("paypal-rest-sdk");
 const { log } = require("console");
 
-paypal.configure({
-   mode: "sandbox",
-   client_id: process.env.CLIENT_ID,
-   client_secret: process.env.CLIENT_SECRET,
-});
+// Configure PayPal only if credentials are available
+if (process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET) {
+   paypal.configure({
+      mode: "sandbox",
+      client_id: process.env.PAYPAL_CLIENT_ID,
+      client_secret: process.env.PAYPAL_CLIENT_SECRET,
+   });
+}
 
-// function getdate() {
-//     const d_t = new Date();
-//     let year = d_t.getFullYear();
-//     let month = ("0" + (d_t.getMonth() + 1)).slice(-2);
-//     let day = ("0" + d_t.getDate()).slice(-2);
-//     let hour = d_t.getHours();
-//     let minute = d_t.getMinutes();
-//     let seconds = d_t.getSeconds();
-//     let dateNtime = (year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + seconds);
-//     console.log('dateNtime');
-//     return (dateNtime);
-// }
+// Razorpay instance (keys will be checked at runtime in helpers)
+var instance;
+try {
+   instance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID || "placeholder",
+      key_secret: process.env.RAZORPAY_KEY_SECRET || "placeholder",
+   });
+} catch (e) {
+   console.error("Razorpay instance creation failed:", e.message);
+}
 
-//Razorpay instance
-var instance = new Razorpay({
-   key_id: process.env.KEY_ID,
-   key_secret: process.env.KEY_SECRET,
-});
 
 module.exports = {
+   areRazorpayKeysValid: () => {
+      return !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.RAZORPAY_KEY_ID !== "placeholder");
+   },
+
+   arePaypalKeysValid: () => {
+      return !!(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET);
+   },
+
    checkUserExistence: (userData) => {
       return new Promise(async (resolve, reject) => {
          const emailExists = await db
@@ -443,8 +447,8 @@ module.exports = {
                         $sum: {
                            $multiply: [
                               "$quantity",
-                              { $toInt: "$product.price" },
-                              { $toInt: "$product.discount" },
+                              { $convert: { input: "$product.price", to: "double", onError: 0, onNull: 0 } },
+                              { $convert: { input: "$product.discount", to: "double", onError: 0, onNull: 0 } },
                            ],
                         },
                      },
@@ -452,8 +456,11 @@ module.exports = {
                },
             ])
             .toArray();
-         //     console.log(total[0].total);
-         resolve(total[0].discount);
+         if (total.length > 0) {
+            resolve(total[0].discount);
+         } else {
+            resolve(0);
+         }
       });
    },
 
@@ -497,7 +504,7 @@ module.exports = {
                         $sum: {
                            $multiply: [
                               "$quantity",
-                              { $toInt: "$product.price" },
+                              { $convert: { input: "$product.price", to: "double", onError: 0, onNull: 0 } },
                            ],
                         },
                      },
@@ -505,8 +512,11 @@ module.exports = {
                },
             ])
             .toArray();
-         //      console.log(total[0].total);
-         resolve(total[0].total);
+         if (total.length > 0) {
+            resolve(total[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    placeOrder: (order, products, total) => {
@@ -708,19 +718,33 @@ module.exports = {
    },
    generateRazorpay: (orderId, totalAmount) => {
       return new Promise((resolve, reject) => {
+         // Check if credentials are valid before proceeding
+         if (!module.exports.areRazorpayKeysValid()) {
+            return reject(new Error("Razorpay credentials missing"));
+         }
+
          var options = {
             amount: totalAmount * 100, // amount in the smallest currency unit
             currency: "INR",
             receipt: "" + orderId,
          };
-         instance.orders.create(options, function (err, order) {
-            if (err) {
-               // //         console.log(err);
-            } else {
-               ////         console.log('new Order_', order);
-               resolve(order);
+         
+         try {
+            if (!instance) {
+               return reject(new Error("Razorpay instance not initialized"));
             }
-         });
+            instance.orders.create(options, function (err, order) {
+               if (err) {
+                  console.error("Razorpay Order Creation Error:", err);
+                  reject(err);
+               } else {
+                  resolve(order);
+               }
+            });
+         } catch (error) {
+            console.error("Razorpay Order Creation Exception:", error);
+            reject(error);
+         }
       });
    },
 
@@ -766,7 +790,7 @@ module.exports = {
    verifyPayment: (details) => {
       return new Promise((resolve, reject) => {
          var crypto = require("crypto");
-         let hmac = crypto.createHmac("sha256", "V17JHUnoFl9NymK2Kx2mXvJK");
+         let hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
          hmac.update(
             details["payment[razorpay_order_id]"] +
                "|" +
@@ -853,34 +877,21 @@ module.exports = {
       return new Promise(async (resolve, reject) => {
          let Status = false;
          let response = {};
-         //     console.log('userdateaaaaaaaaaaaaaaaa', userData);
          let user = await db
             .get()
             .collection(collection.USER_COLLECTIONS)
             .findOne({ phone: userData.phone });
-         // console.log('fffffffffffffffffffffffffffffffffffffffffffffff',user.phone);
-         // if (user) {
-         //     bcrypt.compare(userData.password, user.password).then((status) => {
-         if (userData.phone == user.phone) {
-            // bcrypt.compare(userData.password, user.password).then((status) => {
+         if (user && userData.phone == user.phone) {
             Status = true;
-            if (Status) {
-               if (user.blockStatus) {
-                  response.blocked = true;
-                  resolve(response);
-               } else {
-                  //        //         console.log("Logged in successfully");
-                  response.user = user;
-                  response.status = true;
-                  resolve(response);
-               }
+            if (user.blockStatus) {
+               response.blocked = true;
+               resolve(response);
             } else {
-               //  //         console.log("Login failed");
-               resolve({ status: false });
+               response.user = user;
+               response.status = true;
+               resolve(response);
             }
-            // })
          } else {
-            //    console.log("login failed");
             resolve({ status: false });
          }
       });
@@ -1134,7 +1145,11 @@ module.exports = {
             ])
             .toArray();
          //         console.log("razorrrrrrrrrrrrrTotal", razorTotal[0].total);
-         resolve(razorTotal[0].total);
+         if (razorTotal.length > 0) {
+            resolve(razorTotal[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    getCODAmt: () => {
@@ -1186,7 +1201,11 @@ module.exports = {
             ])
             .toArray();
          //         console.log("coddddddddddddddddTotal", CODtotal[0].total);
-         resolve(CODtotal[0].total);
+         if (CODtotal.length > 0) {
+            resolve(CODtotal[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    getPaypalAmt: () => {
@@ -1238,7 +1257,11 @@ module.exports = {
             ])
             .toArray();
          //         console.log("coddddddddddddddddTotal", paypalTotal[0].total);
-         resolve(paypalTotal[0].total);
+         if (paypalTotal.length > 0) {
+            resolve(paypalTotal[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    getCODcount: () => {
@@ -1324,8 +1347,11 @@ module.exports = {
                },
             ])
             .toArray();
-         //         console.log("total", total[0].total);
-         resolve(total[0].total);
+         if (total.length > 0) {
+            resolve(total[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    getTotalSale: (Today) => {
@@ -1381,7 +1407,11 @@ module.exports = {
             ])
             .toArray();
          // console.log('total', total[0].total);
-         resolve(Total[0].total);
+         if (Total.length > 0) {
+            resolve(Total[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    getTodaySaleCount: (Today) => {
@@ -1458,8 +1488,11 @@ module.exports = {
                },
             ])
             .toArray();
-         //         console.log("total", total[0].total);
-         resolve(total[0].total);
+         if (total.length > 0) {
+            resolve(total[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
 
@@ -1525,8 +1558,11 @@ module.exports = {
                },
             ])
             .toArray();
-         //         console.log("total", total[0].total);
-         resolve(total[0].total);
+         if (total.length > 0) {
+            resolve(total[0].total);
+         } else {
+            resolve(0);
+         }
       });
    },
    addCoupons: (coupon) => {
@@ -1551,8 +1587,12 @@ module.exports = {
             .get()
             .collection(collection.COUPONS_COLLECTIONS)
             .findOne();
-         //         console.log("helpersssssssssssssss", myCoupon.couponObj.discountVal);
-         resolve(myCoupon.couponObj.discountVal);
+         
+         if (myCoupon && myCoupon.couponObj && myCoupon.couponObj.discountVal) {
+            resolve(myCoupon.couponObj.discountVal);
+         } else {
+            resolve(0);
+         }
       });
    },
    couponAdded: (userId) => {

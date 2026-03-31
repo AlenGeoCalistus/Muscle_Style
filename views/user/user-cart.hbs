@@ -20,7 +20,7 @@
 <section class="blog-section spad">
     <div class="container mt-5">
         <div class="row">
-
+            {{#if products.[0]}}
             <div class="col-lg-8 p-0">
 
                 <div class="blog-item">
@@ -55,7 +55,7 @@
                                             <br>
 
                                             <p style="font-size: 1rem;"><i class="fas fa-rupee-sign"></i> {{
-                                                this.product.price}}</p>
+                                                 this.product.price}}</p>
                                             {{#if this.product.offer}}
                                             <p>{{this.product.discount}}%off</p>
                                             {{/if}}
@@ -201,6 +201,13 @@
 
                 </div>
             </div>
+            {{else}}
+            <div class="col-lg-12 text-center">
+                <h3 style="color: #ffffff;">No items in the cart</h3>
+                <br>
+                <a href="/" class="primary-btn btn-normal">Continue Shopping</a>
+            </div>
+            {{/if}}
         </div>
     </div>
 </section>
